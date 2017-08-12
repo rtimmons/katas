@@ -31,6 +31,45 @@ public class Tree {
         }
     }
 
+    //////////////////////////////////////////////
+    // Pretty-Print
+    //////////////////////////////////////////////
+
+    int widthOf(int n) {
+        int out = 1;
+        if ( n < 0 ) { out++; n = -n; }
+        while(n > 10) {
+            out++;
+            n /= 10;
+        }
+        return out;
+    }
+
+    int before() {
+        return (this.left == null ? 0 : this.left.width());
+    }
+
+    int width() {
+        return before()
+        +      widthOf(this.data)
+        +      (this.right == null ? 0 : this.right.width());
+    }
+
+    static void nspaces(StringBuilder out, int n) {
+        while(n-- > 0) {
+            out.append(" ");
+        }
+    }
+
+    String prettyPrint() {
+        StringBuilder out = new StringBuilder();
+        levelOrder((t)-> {
+            nspaces(out, t.before());
+            out.append(t.data);
+        }, i -> out.append("\n"));
+        return out.toString();
+    }
+
     ///////////////////////////////////////////////
     // Level-Order
     ///////////////////////////////////////////////
@@ -41,24 +80,33 @@ public class Tree {
      3   6     9  11
      */
     public void levelOrderPrint() {
+        levelOrder(System.out::print, i -> System.out.println());
+    }
+
+    public void levelOrder(Consumer<Tree> withLevel, Consumer<Integer> afterLevel) {
         Set<Tree> atLevel = new HashSet<>();
         atLevel.add(this);
 
+        int level = 0;
         while(!atLevel.isEmpty()) {
-            atLevel.forEach(System.out::print);
-            System.out.println();
+            atLevel.forEach(withLevel::accept);
+            afterLevel.accept(level);
             atLevel = atLevel.stream()
                     .flatMap(t -> Stream.of(t.left, t.right))
                     .filter(t -> t != null)
                     .collect(toSet());
+            level++;
         }
     }
+
 
     void levelOrder(Stack<Tree> stack) {
         Tree top = stack.peek();
         wLeft(stack::push);
         wRight(stack::push);
     }
+
+    // TODO: level-order iterator
 
     //////////////////////////////////////////////
     // In Order
@@ -109,7 +157,9 @@ public class Tree {
     }
 
     public String toString() {
-        return "<" + (left == null ? "" : "L,") + this.data + (right == null ? "" : ",R") + ">";
+//        return "<" + (left == null ? "" : "L,") + this.data + (right == null ? "" : ",R") + ">";
+        return prettyPrint();
+
     }
 
     Iterator<Integer> inorder() {
@@ -128,6 +178,7 @@ public class Tree {
 //        for (Iterator<Integer> it = root.inorder(); it.hasNext();) {
 //            System.out.println(it.next());
 //        }
-        root.levelOrderPrint();
+//        root.levelOrderPrint();
+        System.out.println(root);
     }
 }
