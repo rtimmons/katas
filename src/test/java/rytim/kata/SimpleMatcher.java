@@ -34,45 +34,26 @@ public class SimpleMatcher {
         return matches(bits, 0, 0);
     }
 
+    private boolean charMatch(int rexIx, char[] str, int strIx) {
+        return rex[rexIx] == '.' || str[strIx] == rex[rexIx];
+    }
+
     private boolean matches(char[] str, final int strIx, final int rexIx) {
-        System.out.println(String.format("str=%s strIx=%d rexIx=%d of rex=%s", Arrays.toString(str), strIx, rexIx, Arrays.toString(rex)));
-        if (rexIx >= rex.length) {
-            return true; // nothing left to match
-        }
-        // else more rex to match
-
-        boolean hasNext = rexIx + 1 < rex.length;
-        if (hasNext) {
-            char next = rex[rexIx + 1];
-            if (next == '*') {
-                return matchStar(str, strIx, rexIx);
-            }
-        }
-
-        if (strIx >= str.length) {
-            return false; // end of string
-        }
-
-        boolean charMatch =
-                rex[rexIx] == '.' || str[strIx] == rex[rexIx];
-
-        return charMatch && matches(str, strIx + 1, rexIx + 1);
+        return rexIx >= rex.length // no more rex
+                // star
+                || (rexIx + 1 < rex.length && rex[rexIx + 1] == '*' && matchStar(str, strIx, rexIx))
+                // simple match and rest matches
+                || (strIx < str.length && charMatch(rexIx, str, strIx) && matches(str, strIx + 1, rexIx + 1));
     }
 
     private boolean matchStar(char[] str, int strIx, int rexIx) {
-        if (rex[rexIx + 1] != '*') {
-            throw new IllegalStateException("Bad matchStar in " + Arrays.toString(str) + " at position " + strIx);
-        }
-
         int curr = strIx;
         do {
-            // backtracking
-            System.out.println(String.format("  str=%s curr=%d rexIx=%d of rex=%s", Arrays.toString(str), curr, rexIx, Arrays.toString(rex)));
-
-            if (rex[rexIx] == '.' || strIx >= str.length - 1 || rex[rexIx] == str[strIx]) {
-                if (matches(str, curr, rexIx + 2)) {
-                    return true;
-                }
+            boolean goodFromHere =
+                    strIx >= str.length - 1 || charMatch(rexIx, str, strIx)
+                    && matches(str, curr, rexIx + 2);
+            if (goodFromHere) {
+                return true;
             }
             curr++;
         } while (curr <= str.length - 1);
@@ -108,8 +89,8 @@ public class SimpleMatcher {
 
                 {"a*", "", T},
                 {"a*", "aa", T},
-                {".*", "a",  T},
-                {".*", "",   T},
+                {".*", "a", T},
+                {".*", "", T},
                 {"a*b*a", "aa", T},
                 {"a*b*a", "aaaaaaa", T},
                 {"a*b*a", "aaaaaaba", T},
