@@ -1,4 +1,4 @@
-package rytim.hello;
+package rytim.kata;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;

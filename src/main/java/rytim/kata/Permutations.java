@@ -1,7 +1,6 @@
-package rytim.hello;
+package rytim.kata;
 
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 public class Permutations {
 

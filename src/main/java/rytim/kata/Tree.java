@@ -1,4 +1,4 @@
-package rytim.hello;
+package rytim.kata;
 
 import java.util.HashSet;
 import java.util.Iterator;

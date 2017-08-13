@@ -1,4 +1,4 @@
-package rytim.hello;
+package rytim.kata;
 
 public class Hello {
 	public String sayHello() {
