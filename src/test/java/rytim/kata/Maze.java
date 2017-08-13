@@ -1,5 +1,7 @@
 package rytim.kata;
 
+import org.junit.Test;
+
 import java.util.Stack;
 
 public class Maze {
@@ -121,22 +123,26 @@ public class Maze {
                 explore(head.down, Dir.D, path);
     }
 
-    public static void main(String...args) {
-        Maze m = new Maze.Builder()
-                .down().left()
-                       .or()
-                       .right().right()
-                               .or()
-                               .left()
-                               .or()
-                        .or()
+    public static class Tests {
+        @Test
+        public void main() {
+            Maze m = new Maze.Builder()
+                    .down().left()
+                           .or()
+                           .right().right()
+                                   .or()
+                                   .left()
+                                   .or()
+                            .or()
 
-                .or()
-                .up().down().left().right().left().right().up().exits()
-                .build();
-        Stack<Move> path = m.exit();
-        while(!path.empty()) {
-            System.out.println(path.pop());
+                    .or()
+                    .up().down().left().right().left().right().up().exits()
+                    .build();
+            Stack<Move> path = m.exit();
+            while(!path.empty()) {
+                System.out.println(path.pop());
+            }
         }
     }
+
 }

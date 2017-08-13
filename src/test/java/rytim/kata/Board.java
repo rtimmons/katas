@@ -1,5 +1,7 @@
 package rytim.kata;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
@@ -295,14 +297,17 @@ public class Board<T> {
         }
     }
 
-    //    @Test
-    public void testAdjacent() {
-        Board<Integer> b = new Board<>(2, 2, 0);
-        Board.Tile a00 = b.tile(0, 0);
-        a00.neighbors().forEach(System.out::println);
-        System.out.println(a00.startPath().explore().collect(toList()));
+    public static class Tests {
+        @Test
+        public void testAdjacent() {
+            Board<Integer> b = new Board<>(2, 2, 0);
+            Board.Tile a00 = b.tile(0, 0);
+            a00.neighbors().forEach(System.out::println);
+            System.out.println(a00.startPath().explore().collect(toList()));
 
 //        System.out.println(a00);
+        }
     }
+
 }
 

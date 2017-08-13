@@ -1,5 +1,8 @@
 package rytim.kata;
 
+import org.junit.Test;
+import org.junit.runners.Suite;
+
 import java.util.*;
 
 public class MergeSort {
@@ -35,10 +38,14 @@ public class MergeSort {
         return null;
     }
 
-    public static void main(String...args) {
-        MergeSort m = new MergeSort();
-        List<Integer> t = Arrays.asList(1, 3, 5, 0, 2, 1);
+    public static class Tests {
+        @Test
+        public void main() {
+            MergeSort m = new MergeSort();
+            List<Integer> t = Arrays.asList(1, 3, 5, 0, 2, 1);
 //        System.out.println(m.sort(t));
+        }
     }
+
 
 }

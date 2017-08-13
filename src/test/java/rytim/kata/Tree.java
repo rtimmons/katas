@@ -1,5 +1,7 @@
 package rytim.kata;
 
+import org.junit.Test;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -166,19 +168,24 @@ public class Tree {
         return new InorderIterator(this);
     }
 
-    public static void main(String... args) {
-        Tree root = new Tree(100,
-                new Tree(50,
-                        new Tree(40,
-                                new Tree(30, null, null), null),
-                        new Tree(55, null, null)),
-                new Tree(175, null, null)
-        );
+    public static class Tests {
+        @Test
+        public void main() {
+            Tree root = new Tree(100,
+                    new Tree(50,
+                            new Tree(40,
+                                    new Tree(30, null, null), null),
+                            new Tree(55, null, null)),
+                    new Tree(175, null, null)
+            );
 
-//        for (Iterator<Integer> it = root.inorder(); it.hasNext();) {
-//            System.out.println(it.next());
-//        }
-//        root.levelOrderPrint();
-        System.out.println(root);
+//            for (Iterator<Integer> it = root.inorder(); it.hasNext();) {
+//                System.out.println(it.next());
+//            }
+//            root.levelOrderPrint();
+            System.out.println(root);
+        }
+
     }
+
 }

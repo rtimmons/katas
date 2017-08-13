@@ -1,5 +1,7 @@
 package rytim.kata;
 
+import org.junit.Test;
+
 import java.util.*;
 
 public class Permutations {
@@ -69,14 +71,18 @@ public class Permutations {
         }
     }
 
-    public static void main(String...args) {
-        Iterator<List<Integer>> permute = permute(
-                Arrays.asList(1, 2, 3),
-                Arrays.asList(11, 12),
-                Arrays.asList(21, 22, 23, 24)
-        );
-        while(permute.hasNext()) {
-            System.out.println(permute.next());
+    public static class Tests {
+        @Test
+        public void main() {
+            Iterator<List<Integer>> permute = permute(
+                    Arrays.asList(1, 2, 3),
+                    Arrays.asList(11, 12),
+                    Arrays.asList(21, 22, 23, 24)
+            );
+            while(permute.hasNext()) {
+                System.out.println(permute.next());
+            }
         }
     }
+
 }
