@@ -3,13 +3,11 @@ package rytim.kata;
 import org.junit.Test;
 
 public class Sudoku {
-    static final int SIZE = 3;
-    static final int Q    = 0;
+    static final int Q = 0;
 
     final Board board;
-
-    public Sudoku(int[] board) {
-        this.board = new Board(board);
+    public Sudoku(int size, int[] board) {
+        this.board = new Board(size, board);
     }
 
     public String toString() {
@@ -18,17 +16,19 @@ public class Sudoku {
 
     private static class Board {
         final int[] cells;
-        public Board(int[] board) {
-            if (board == null || board.length != SIZE * SIZE * SIZE * SIZE) {
+        final int size;
+        public Board(int size, int[] board) {
+            this.size = size;
+            if (board == null || board.length != size * size * size * size) {
                 throw new IllegalArgumentException("Invalid board");
             }
             this.cells = board;
         }
         int get(int x, int y) {
-            return cells[y*SIZE*SIZE + x];
+            return cells[y*size*size + x];
         }
         Board set(int x, int y, int val) {
-            cells[y*SIZE*SIZE + x] = val;
+            cells[y*size*size + x] = val;
             return this;
         }
         Board clear(int x, int y) {
@@ -41,12 +41,12 @@ public class Sudoku {
                 out.append(this.cells[ix-1]);
                 out.append(" ");
 
-                if ( ix % (SIZE*SIZE) == 0 ) {
+                if ( ix % (size*size) == 0 ) {
                     out.append("\n");
-                    if (ix % (SIZE*SIZE*SIZE) == 0) {
+                    if (ix % (size*size*size) == 0) {
                         out.append("\n");
                     }
-                } else if ( ix % SIZE == 0) {
+                } else if ( ix % size == 0) {
                     out.append("   ");
                 }
             }
@@ -59,7 +59,7 @@ public class Sudoku {
         // http://www.dailysudoku.com/sudoku/examples/classic.pdf
         @Test
         public void testOne() {
-            Sudoku s = new Sudoku(new int[] {
+            Sudoku s = new Sudoku(3, new int[] {
                     Q,Q,2,  Q,9,Q,  Q,6,Q,
                     Q,4,Q,  Q,Q,1,  Q,Q,8,
                     Q,7,Q,  4,2,Q,  Q,Q,3,
