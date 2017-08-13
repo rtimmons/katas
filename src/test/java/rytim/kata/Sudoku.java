@@ -58,35 +58,35 @@ public class Sudoku {
             return set(x,y,Q);
         }
 
-        boolean validRow(int row) {
+        boolean validRow(int row, Tally t) {
             if (row >= size*size) {
                 throw new IllegalArgumentException("Invalid row " + row);
             }
-            Tally t = new Tally(size);
+            t.clear();
             for(int col = 0; col < size*size; col++) {
                 t.mark(get(col,row));
             }
             return t.okay();
         }
 
-        boolean validColumn(int column) {
+        boolean validColumn(int column, Tally t) {
             if (column >= size*size) {
                 throw new IllegalArgumentException("Invalid column " + column);
             }
-            Tally t = new Tally(size);
+            t.clear();
             for(int row = 0; row < size*size; row++) {
                 t.mark(get(column,row));
             }
             return t.okay();
         }
 
-        boolean validBox(int box) {
+        boolean validBox(int box, Tally t) {
             if (box >= size*size) {
                 throw new IllegalArgumentException("Invalid box " + box);
             }
             int rowOffset = size * (box / size);
             int colOffset = size * (box % size);
-            Tally t = new Tally(size);
+            t.clear();
             for(int row = 0; row < size; row++) {
                 for(int col = 0; col < size; col++) {
                     t.mark(get(colOffset + col, rowOffset + row));
@@ -96,14 +96,15 @@ public class Sudoku {
         }
 
         boolean valid() {
+            Tally t = new Tally(size);
             for(int i=0; i < size*size; i++) {
-                if (!validRow(i)) {
+                if (!validRow(i, t)) {
                     return false;
                 }
-                if (!validColumn(i)) {
+                if (!validColumn(i, t)) {
                     return false;
                 }
-                if (!validBox(i)) {
+                if (!validBox(i, t)) {
                     return false;
                 }
             }
@@ -183,20 +184,21 @@ public class Sudoku {
                     2, 3,   1, 4,
                     4, 1,   3, 2,
             });
-            Assert.assertEquals(true, s.board.validBox(0));
-            Assert.assertEquals(true, s.board.validBox(1));
-            Assert.assertEquals(true, s.board.validBox(2));
-            Assert.assertEquals(true, s.board.validBox(3));
+            Board.Tally t = new Board.Tally(2);
+            Assert.assertEquals(true, s.board.validBox(0, t));
+            Assert.assertEquals(true, s.board.validBox(1, t));
+            Assert.assertEquals(true, s.board.validBox(2, t));
+            Assert.assertEquals(true, s.board.validBox(3, t));
 
-            Assert.assertEquals(true, s.board.validColumn(0));
-            Assert.assertEquals(true, s.board.validColumn(1));
-            Assert.assertEquals(true, s.board.validColumn(2));
-            Assert.assertEquals(true, s.board.validColumn(3));
+            Assert.assertEquals(true, s.board.validColumn(0, t));
+            Assert.assertEquals(true, s.board.validColumn(1, t));
+            Assert.assertEquals(true, s.board.validColumn(2, t));
+            Assert.assertEquals(true, s.board.validColumn(3, t));
 
-            Assert.assertEquals(true, s.board.validRow(0));
-            Assert.assertEquals(true, s.board.validRow(1));
-            Assert.assertEquals(true, s.board.validRow(2));
-            Assert.assertEquals(true, s.board.validRow(3));
+            Assert.assertEquals(true, s.board.validRow(0, t));
+            Assert.assertEquals(true, s.board.validRow(1, t));
+            Assert.assertEquals(true, s.board.validRow(2, t));
+            Assert.assertEquals(true, s.board.validRow(3, t));
 
             Assert.assertEquals(true, s.board.valid());
         }
@@ -225,20 +227,21 @@ public class Sudoku {
                     2, 3,   4, 4,
                     4, 1,   3, 2,
             });
-            Assert.assertEquals(true, s.board.validBox(0));
-            Assert.assertEquals(true, s.board.validBox(1));
-            Assert.assertEquals(true, s.board.validBox(2));
-            Assert.assertEquals(false, s.board.validBox(3));
+            Board.Tally t = new Board.Tally(2);
+            Assert.assertEquals(true, s.board.validBox(0, t));
+            Assert.assertEquals(true, s.board.validBox(1, t));
+            Assert.assertEquals(true, s.board.validBox(2, t));
+            Assert.assertEquals(false, s.board.validBox(3, t));
 
-            Assert.assertEquals(true, s.board.validColumn(0));
-            Assert.assertEquals(true, s.board.validColumn(1));
-            Assert.assertEquals(false, s.board.validColumn(2));
-            Assert.assertEquals(true, s.board.validColumn(3));
+            Assert.assertEquals(true, s.board.validColumn(0, t));
+            Assert.assertEquals(true, s.board.validColumn(1, t));
+            Assert.assertEquals(false, s.board.validColumn(2, t));
+            Assert.assertEquals(true, s.board.validColumn(3, t));
 
-            Assert.assertEquals(true, s.board.validRow(0));
-            Assert.assertEquals(true, s.board.validRow(1));
-            Assert.assertEquals(false, s.board.validRow(2));
-            Assert.assertEquals(true, s.board.validRow(3));
+            Assert.assertEquals(true, s.board.validRow(0, t));
+            Assert.assertEquals(true, s.board.validRow(1, t));
+            Assert.assertEquals(false, s.board.validRow(2, t));
+            Assert.assertEquals(true, s.board.validRow(3, t));
 
             Assert.assertEquals(false, s.board.valid());
         }
