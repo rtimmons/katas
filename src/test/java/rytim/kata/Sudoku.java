@@ -15,6 +15,28 @@ public class Sudoku {
         return this.board.toString();
     }
 
+    void solve() {
+        if (!explore()) {
+            throw new IllegalArgumentException("Unsolvable board");
+        }
+    }
+
+    boolean explore() {
+        for(int y = 0; y < board.size*board.size; y++) {
+            for(int x = 0; x < board.size*board.size; x++) {
+                for(int guess = 1; guess <= board.size*board.size; guess++) {
+                    if(board.get(x,y) == Q) {
+                        board.set(x, y, guess);
+                        if (!explore()) {
+                            board.clear(x, y);
+                        }
+                    }
+                }
+            }
+        }
+        return board.valid();
+    }
+
     private static class Board {
         final int[] cells;
         final int size;
@@ -91,23 +113,27 @@ public class Sudoku {
         static class Tally {
             final boolean[] seen;
             final int size;
-            boolean dupes = false;
+            boolean failed = false;
             Tally(int size) {
                 this.seen = new boolean[size * size];
                 this.size = size;
             }
             Tally mark(int i) {
+                if ( i == Q ) {
+                    failed = true;
+                    return this;
+                }
                 if ( i <= 0 || i > size*size ) {
                     throw new IllegalArgumentException("Invalid tally " + i);
                 }
                 if(seen[i-1]) {
-                    dupes = true;
+                    failed = true;
                 }
                 seen[i-1] = true;
                 return this;
             }
             boolean okay() {
-                if(dupes) { return false; }
+                if(failed) { return false; }
                 for(boolean s : seen) {
                     if (!s) {
                         return false;
@@ -119,6 +145,7 @@ public class Sudoku {
                 for(int i=0; i < seen.length; i++) {
                     seen[i] = false;
                 }
+                this.failed = false;
                 return this;
             }
         }
@@ -175,6 +202,21 @@ public class Sudoku {
         }
 
         @Test
+        public void testSolves2by2() {
+            Sudoku s = new Sudoku(2, new int[]{
+                    Q, 2,   4, 3,
+                    3, Q,   2, 1,
+
+                    2, 3,   Q, 4,
+                    4, 1,   3, Q,
+            });
+            s.solve();
+            System.out.println(s.board);
+            Assert.assertEquals(true, s.board.valid());
+        }
+
+
+        @Test
         public void testInvalid2by2() {
             Sudoku s = new Sudoku(2, new int[]{
                     1, 2,   4, 3,
@@ -217,6 +259,7 @@ public class Sudoku {
                     6,Q,Q,  9,Q,Q,  Q,2,Q,
                     Q,2,Q,  Q,8,Q,  1,Q,Q,
             });
+//            s.solve();
         }
 
     }
