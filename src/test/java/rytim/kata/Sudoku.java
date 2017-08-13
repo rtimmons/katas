@@ -3,6 +3,16 @@ package rytim.kata;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.fail;
+
 public class Sudoku {
     static final int Q = 0;
 
@@ -16,41 +26,57 @@ public class Sudoku {
     }
 
     void solve() {
-        if (!explore()) {
-            throw new IllegalArgumentException("Unsolvable board");
+        List<Board.Square> blanks = board.blanks().collect(toList());
+        if (!explore(blanks)) {
+            System.out.println(board);
+            throw new IllegalArgumentException("Unsolvable");
         }
     }
 
-    boolean explore() {
-        for(int y = 0; y < board.size*board.size; y++) {
-            for(int x = 0; x < board.size*board.size; x++) {
-                for(int guess = 1; guess <= board.size*board.size; guess++) {
-                    if(board.get(x,y) == Q) {
-                        board.set(x, y, guess);
-                        if (!explore()) {
-                            board.clear(x, y);
-                        }
-                    }
-                }
-            }
+    boolean explore(List<Board.Square> blanks) {
+        if (blanks.isEmpty()) {
+            return board.valid();
         }
-        return board.valid();
+        Board.Square first = blanks.get(0);
+        List<Board.Square> rest = blanks.subList(1, blanks.size());
+
+        for(int i=1; i <= board.size * board.size; i++) {
+            first.set(i);
+            if (explore(rest)) {
+                return true;
+            }
+            first.clear();
+        }
+        return false;
     }
 
     private static class Board {
         final int[] cells;
         final int size;
+        final int sq;
+        final int expectSum;
+        int sum;
+
         public Board(int size, int[] board) {
             this.size = size;
             if (board == null || board.length != size * size * size * size) {
                 throw new IllegalArgumentException("Invalid board");
             }
             this.cells = board;
+            this.sq = size * size;
+
+            int groupSum = sq * (sq + 1)/2;
+            this.expectSum = sq * groupSum;
+
+            sum = Arrays.stream(board).sum();
         }
         int get(int x, int y) {
             return cells[y*size*size + x];
         }
         Board set(int x, int y, int val) {
+            sum -= get(x,y);
+            sum += val;
+
             cells[y*size*size + x] = val;
             return this;
         }
@@ -95,7 +121,11 @@ public class Sudoku {
             return t.okay();
         }
 
+
         boolean valid() {
+            if (sum != expectSum) {
+                return false;
+            }
             Tally t = new Tally(size);
             for(int i=0; i < size*size; i++) {
                 if (!validRow(i, t)) {
@@ -151,7 +181,33 @@ public class Sudoku {
             }
         }
 
+        Stream<Square> blanks() {
+            return IntStream.range(0, size*size*size*size)
+                    .mapToObj(Square::new)
+                    .filter(Square::blank);
+        }
 
+        private class Square {
+            final int col; final int row;
+            public Square(int number) {
+                this.row = number / (size*size);
+                this.col = number % (size*size);
+            }
+
+            boolean blank() {
+                return get() == Q;
+            }
+            int get() {
+                return Board.this.get(this.col, this.row);
+            }
+            boolean set(int val) {
+                Board.this.set(this.col, this.row, val);
+                return Board.this.valid();
+            }
+            void clear() {
+                Board.this.clear(this.col, this.row);
+            }
+        }
 
         public String toString() {
             StringBuilder out = new StringBuilder();
@@ -217,7 +273,19 @@ public class Sudoku {
             Assert.assertEquals(true, s.board.valid());
         }
 
+        @Test
+        public void testSolvesHarder2by2() {
+            Sudoku s = new Sudoku(2, new int[]{
+                    2, Q,   Q, 4,
+                    Q, Q,   1, Q,
 
+                    Q, 3,   Q, Q,
+                    Q, Q,   Q, Q,
+            });
+            s.solve();
+            System.out.println(s.board);
+            Assert.assertEquals(true, s.board.valid());
+        }
         @Test
         public void testInvalid2by2() {
             Sudoku s = new Sudoku(2, new int[]{
@@ -244,6 +312,11 @@ public class Sudoku {
             Assert.assertEquals(true, s.board.validRow(3, t));
 
             Assert.assertEquals(false, s.board.valid());
+            try {
+                s.solve();
+                fail("expected exception");
+            }
+            catch(IllegalArgumentException expected) {}
         }
 
         // http://www.dailysudoku.com/sudoku/examples/classic.pdf
