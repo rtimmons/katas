@@ -50,7 +50,7 @@ public class SimpleMatcher {
         int curr = strIx;
         do {
             boolean goodFromHere =
-                    strIx >= str.length - 1 || charMatch(rexIx, str, strIx)
+                    (strIx >= str.length - 1 || charMatch(rexIx, str, strIx))
                     && matches(str, curr, rexIx + 2);
             if (goodFromHere) {
                 return true;
