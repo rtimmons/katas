@@ -35,34 +35,49 @@ public class SimpleMatcher {
     }
 
     private boolean matches(char[] str, final int strIx, final int rexIx) {
-//        System.out.println(String.format("%s %d %d of %s", Arrays.toString(str), strIx, rexIx, Arrays.toString(rex)));
+        System.out.println(String.format("str=%s strIx=%d rexIx=%d of rex=%s", Arrays.toString(str), strIx, rexIx, Arrays.toString(rex)));
         if (rexIx >= rex.length) {
             return true; // nothing left to match
         }
         // else more rex to match
 
-        if (strIx >= str.length) {
-            return false; // end of string
-        }
-
-
-        boolean hasNext = rexIx + 1 < str.length;
+        boolean hasNext = rexIx + 1 < rex.length;
         if (hasNext) {
             char next = rex[rexIx + 1];
             if (next == '*') {
-                // TODO
-                throw new UnsupportedOperationException("TODO support *");
-//                if (matchStar(str, strIx, rexIx)) {
-//                    return true;
-//                }
+                return matchStar(str, strIx, rexIx);
             }
         }
 
+        if (strIx >= str.length) {
+            return false; // end of string
+        }
 
         boolean charMatch =
                 rex[rexIx] == '.' || str[strIx] == rex[rexIx];
 
         return charMatch && matches(str, strIx + 1, rexIx + 1);
+    }
+
+    private boolean matchStar(char[] str, int strIx, int rexIx) {
+        if (rex[rexIx + 1] != '*') {
+            throw new IllegalStateException("Bad matchStar in " + Arrays.toString(str) + " at position " + strIx);
+        }
+
+        int curr = strIx;
+        do {
+            // backtracking
+            System.out.println(String.format("  str=%s curr=%d rexIx=%d of rex=%s", Arrays.toString(str), curr, rexIx, Arrays.toString(rex)));
+
+            if (rex[rexIx] == '.' || strIx >= str.length - 1 || rex[rexIx] == str[strIx]) {
+                if (matches(str, curr, rexIx + 2)) {
+                    return true;
+                }
+            }
+            curr++;
+        } while (curr <= str.length - 1);
+
+        return false;
     }
 
 
@@ -75,8 +90,9 @@ public class SimpleMatcher {
         static final String F = "false";
 
         static String[][] cases = new String[][]{
-//                {".*", "foo", T},
-//                {".*", "", T},
+                // rex, str, expec
+
+                {"", "abc", T},
                 {".", "a", T},
                 {".", "", F},
                 {"a", "a", T},
@@ -89,6 +105,21 @@ public class SimpleMatcher {
                 {".a", "aa", T},
                 {".a", "ba", T},
                 {".", ".", T},
+
+                {"a*", "", T},
+                {"a*", "aa", T},
+                {".*", "a",  T},
+                {".*", "",   T},
+                {"a*b*a", "aa", T},
+                {"a*b*a", "aaaaaaa", T},
+                {"a*b*a", "aaaaaaba", T},
+                {"a*b*a", "abaaaaaa", T},
+                {"a*b*a", "", F},
+                {"a*a", "ab", T},
+
+                {".*", "ab", T},
+                {"ab*a", "abba", T},
+                {"ab*a", "aa", T}
         };
 
         @Parameterized.Parameters
