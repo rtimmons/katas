@@ -22,8 +22,11 @@ public class LList<T> {
 
             if ( fast.next != null ) {
                 fast = fast.next;
+                if (fast == slow) {
+                    return true;
+                }
             }
-            if ( fast != null && fast.next != null ) {
+            if ( fast.next != null ) {
                 fast = fast.next;
                 if ( fast == slow ) {
                     return true;
