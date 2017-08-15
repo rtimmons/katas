@@ -9,6 +9,7 @@ public class EditDistance {
         return editDistance(a.toCharArray(), b.toCharArray(), a.length(), b.length());
     }
 
+    // TODO: memoize by storing return values of (aright,bright) pairs
     static int editDistance(char[] a, char[] b, int aright, int bright) {
         if (aright == 0 ) {
             // can only add all of b
@@ -23,9 +24,12 @@ public class EditDistance {
             return editDistance(a, b, aright-1, bright-1);
         }
 
+        // dynamic programming
+
         int add = editDistance(a, b, aright, bright-1);
         int rem = editDistance(a, b, aright-1, bright);
         int rep = editDistance(a, b, aright-1, bright-1);
+
         return 1 // just did an add/rem/rep
                 + Math.min(add, Math.min(rem, rep)); // cost of cheapest
     }
