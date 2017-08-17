@@ -1,7 +1,44 @@
 package rytim.kata;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Objects;
+
 public class LList<T> {
 
+
+    public void remove(T needle) {
+        // head
+        if (Objects.equals(needle, this.delegate.data)) {
+            this.delegate = this.delegate.next;
+            return;
+        }
+
+        Delegate curr = delegate;
+
+        while (curr != null) {
+            if (curr.next != null) {
+                if (Objects.equals(needle, curr.next.data)) {
+                    curr.next = curr.next.next;
+                    return;
+                }
+            }
+        }
+    }
+
+    public String toString() {
+        StringBuilder out = new StringBuilder("[");
+        Delegate curr = delegate;
+        while (curr != null) {
+            out.append(String.valueOf(curr.data));
+            if (curr.next != null) {
+                out.append(",");
+            }
+            curr = curr.next;
+        }
+        return out.append("]").toString();
+    }
 
     Delegate<T> delegate;
 
@@ -26,6 +63,7 @@ public class LList<T> {
             Delegate slow = n;
             Delegate fast = n;
 
+            // TODO: subtle bug here?
             while (slow != null) {
                 slow = slow.next;
 
@@ -46,17 +84,23 @@ public class LList<T> {
         }
     }
 
-    // TODO: don't expose the delegate! dirty refactor to support #remove()
-    public static void main(String... arg) {
-        LList<Integer> h1 = new LList<>(1);
-        LList<Integer> h2 = new LList<>(2);
-        LList<Integer> h3 = new LList<>(3);
-        h3.delegate.next = h1.delegate;
+    public static class Tests {
+        @Test
+        public void testCycles() {
+            // TODO: don't expose the delegate! dirty refactor to support #remove()
+            LList<Integer> h1 = new LList<>(1);
+            LList<Integer> h2 = new LList<>(2);
+            LList<Integer> h3 = new LList<>(3);
 
-        h1.delegate.next = h2.delegate;
-        h2.delegate.next = h3.delegate;
+            h1.delegate.next = h2.delegate;
+            h2.delegate.next = h3.delegate;
+            Assert.assertEquals("[1,2,3]", h1.toString());
 
-        System.out.println(h1.delegate.cycles());
+            // TODO: this should pass
+//            Assert.assertFalse(h1.delegate.cycles());
+            h3.delegate.next = h1.delegate;
+            Assert.assertTrue(h1.delegate.cycles());
+        }
     }
 }
 
