@@ -3,10 +3,48 @@ package rytim.kata;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.Objects;
 
-public class LList<T> {
+public class LList<T> implements Iterable<T> {
 
+    public void add(T v) {
+        if (this.delegate == null) {
+            this.delegate = new Delegate<>(v);
+            return;
+        }
+        Delegate curr = delegate;
+        while(curr.next != null) {
+            curr = curr.next;
+        }
+        curr.next = new Delegate<>(v);
+    }
+
+    public boolean contains(T needle) {
+        for(Delegate<T> curr = delegate; curr != null; curr = curr.next) {
+            if ( Objects.equals(needle, curr.data) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            Delegate curr = delegate;
+            @Override
+            public boolean hasNext() {
+                return curr != null;
+            }
+
+            @Override
+            public T next() {
+                T out = (T)curr.data;
+                curr = curr.next;
+                return out;
+            }
+        };
+    }
 
     public void remove(T needle) {
         // head
@@ -24,6 +62,7 @@ public class LList<T> {
                     return;
                 }
             }
+            curr = curr.next;
         }
     }
 
@@ -85,6 +124,34 @@ public class LList<T> {
     }
 
     public static class Tests {
+        @Test
+        public void testAddContainsRemove() {
+            LList<Integer> l = new LList<>(1);
+            l.add(2);
+            l.add(3);
+            Assert.assertEquals("[1,2,3]", l.toString());
+
+            Assert.assertTrue(l.contains(1));
+            Assert.assertTrue(l.contains(2));
+            Assert.assertTrue(l.contains(3));
+            Assert.assertFalse(l.contains(4));
+
+            l.remove(2);
+            Assert.assertEquals("[1,3]", l.toString());
+            Assert.assertFalse(l.contains(2));
+
+            l.remove(1);
+            Assert.assertEquals("[3]", l.toString());
+            Assert.assertFalse(l.contains(1));
+
+            l.remove(4); // !contains(4)
+            Assert.assertEquals("[3]", l.toString());
+            Assert.assertFalse(l.contains(1));
+
+            l.remove(3);
+            Assert.assertEquals("[]", l.toString());
+            Assert.assertFalse(l.contains(3));
+        }
         @Test
         public void testCycles() {
             // TODO: don't expose the delegate! dirty refactor to support #remove()
