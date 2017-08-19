@@ -10,13 +10,48 @@ import static org.junit.Assert.assertEquals;
 
 public class RomanToInt {
     static final Map<Character, Integer> R = new LinkedHashMap<Character, Integer>() {{
-        put('I', 1);
-        put('V', 5);
-        put('L', 50);
-        put('C', 100);
-        put('D', 500);
         put('M', 1000);
+        put('D', 500);
+        put('C', 100);
+        put('L', 50);
+        put('X', 10);
+        put('V', 5);
+        put('I', 1);
     }};
+
+    public static String toR(int d) {
+        StringBuilder out = new StringBuilder();
+        while(d > 0) {
+            // order matters!
+            // TODO handle subtractive cases (need iterator)
+            for(Map.Entry<Character, Integer> pair : R.entrySet()) {
+                int many = d / pair.getValue();
+                appendN(out, pair.getKey(), many);
+                d = d % pair.getValue();
+            }
+        }
+        return out.toString();
+    }
+
+    static void appendN(StringBuilder out, char n, int times) {
+        while(times > 0) {
+            out.append(n);
+            times--;
+        }
+    }
+
+
+    public static class ToIntTests {
+        @Test
+        public void testSimple() {
+            assertEquals("I", toR(1));
+            assertEquals("II", toR(2));
+            assertEquals("V", toR(5));
+            assertEquals("DV", toR(505));
+            assertEquals("CCVII", toR(207));
+        }
+    }
+
 
     public static int r(String roman) {
         return r(roman.toCharArray(), 0);
@@ -34,7 +69,7 @@ public class RomanToInt {
         return R.get(cs[fromix]) + r(cs, fromix + 1);
     }
 
-    public static class Tests {
+    public static class ToRomanTests {
         @Test
         public void tests() {
             assertEquals(1, r("I"));
