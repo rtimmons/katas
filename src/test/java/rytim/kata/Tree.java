@@ -8,16 +8,64 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
 
 public class Tree {
     final int data;
-    final Tree left;
-    final Tree right;
+    Tree left;
+    Tree right;
 
     public Tree(int data, Tree left, Tree right) {
         this.data = data;
         this.left = left;
         this.right = right;
+    }
+
+    //////////////////////////////////////////
+    // Construct from level-order traversal //
+    //////////////////////////////////////////
+
+    static Tree fromTraversal(List<Integer> remain) {
+        if (remain == null || remain.isEmpty()) {
+            return null;
+        }
+        Queue<Integer> toAdd = new LinkedList<>(remain);
+        return fromTraversal(toAdd);
+    }
+
+    private static Tree fromTraversal(Queue<Integer> toAdd) {
+        Tree root = new Tree(toAdd.remove(), null, null);
+        List<Tree> atLevel = Collections.singletonList(root);
+        List<Tree> nextLevel = new LinkedList<>();
+        while(!toAdd.isEmpty()) {
+            for(Tree t : atLevel) {
+                Integer left = toAdd.remove();
+                if (left != null) {
+                    t.left = new Tree(left, null, null);
+                    nextLevel.add(t.left);
+                }
+
+                Integer right = toAdd.isEmpty() ? null : toAdd.remove();
+                if (right != null) {
+                    t.right = new Tree(right, null, null);
+                    nextLevel.add(t.right);
+                }
+            }
+            atLevel = nextLevel;
+            nextLevel = new LinkedList<>();
+        }
+        return root;
+    }
+
+    public static class FromInorder {
+        @Test
+        public void testInOrder() {
+            Tree root = Tree.fromTraversal(Arrays.asList(1,null,2,3));
+            assertEquals(1,     root.data);
+            assertEquals(2,     root.right.data);
+            assertEquals(3,     root.right.left.data);
+            assertEquals(null,  root.right.right);
+        }
     }
 
     ///////////////////////////////////
@@ -94,7 +142,7 @@ public class Tree {
             Tree c = new Tree(30, a, b);
 
             Tree root = new Tree(200, c, null);
-            Assert.assertEquals(c, root.closestCommonAncestor(a, b));
+            assertEquals(c, root.closestCommonAncestor(a, b));
         }
     }
 
