@@ -1,11 +1,9 @@
 package rytim.kata;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -21,6 +19,87 @@ public class Tree {
         this.left = left;
         this.right = right;
     }
+
+    ///////////////////////////////////
+    // Closest Common Ancestor
+    ///////////////////////////////////
+
+    Queue<Tree> pathTo(Tree other) {
+        Queue<Tree> ancestors = new LinkedList<>();
+        if (this.pathTo(other, ancestors)) {
+            return ancestors;
+        }
+        return null;
+    }
+    
+    boolean pathTo(Tree other, Queue<Tree> ancestors) {
+        ancestors.add(this);
+        if (other == this) {
+            return true;
+        }
+        if (this.left != null) {
+            if (left.pathTo(other, ancestors)) {
+                return true;
+            }
+        }
+        if (this.right != null) {
+            if (right.pathTo(other, ancestors)) {
+                return true;
+            }
+        }
+        ancestors.remove(this);
+        return false;
+    }
+
+    Tree closestCommonAncestor(Tree a, Tree b) {
+
+    // can we reach both from here?
+        Queue<Tree> toA = this.pathTo(a);
+        if (toA == null) {
+            return null;
+        }
+
+        Queue<Tree> toB = this.pathTo(b);
+        if (toB == null) {
+            return null;
+        }
+
+    // cool we can so let's just figure out where the paths diverge
+
+        Tree out = divergence(toA, toB);
+        if (out == null) { return this; }
+        return out;
+    }
+
+    private static <T> T divergence(Queue<T> toA, Queue<T> toB) {
+        T previous = null;
+
+        while(!toA.isEmpty() && !toB.isEmpty()) {
+            T a = toA.remove();
+            T b = toB.remove();
+            if (!Objects.equals(a, b)) {
+                break;
+            }
+            previous = a; // a == b so pick one
+        }
+
+        return previous;
+    }
+
+    public static class ClosestCommonAncestorTests {
+        @Test
+        public void testSimple() {
+            Tree a = new Tree(50, null, null);
+            Tree b = new Tree(100, null, null);
+            Tree c = new Tree(30, a, b);
+
+            Tree root = new Tree(200, c, null);
+            Assert.assertEquals(c, root.closestCommonAncestor(a, b));
+        }
+    }
+
+
+    /////////////////////////////////////
 
     private void wLeft(Consumer<Tree> left) {
         if (this.left != null) {
@@ -85,6 +164,7 @@ public class Tree {
         levelOrder(System.out::print, i -> System.out.println());
     }
 
+    // aka breadth-first search
     public void levelOrder(Consumer<Tree> withLevel, Consumer<Integer> afterLevel) {
         Set<Tree> atLevel = new HashSet<>();
         atLevel.add(this);
@@ -95,7 +175,7 @@ public class Tree {
             afterLevel.accept(level);
             atLevel = atLevel.stream()
                     .flatMap(t -> Stream.of(t.left, t.right))
-                    .filter(t -> t != null)
+                    .filter(Objects::nonNull)
                     .collect(toSet());
             level++;
         }
