@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 
@@ -19,6 +20,81 @@ public class Tree {
         this.data = data;
         this.left = left;
         this.right = right;
+    }
+
+    //////////////////////////////////////////
+    // MaxWidth
+    /////////////////////////////////////////
+
+    int maxBalancedDepthBelow() {
+        if (left == null && right == null) {
+            return 0;
+        }
+
+        int leftDepth = 0;
+        if (left != null) {
+            leftDepth = left.maxBalancedDepthBelow();
+        }
+
+        int rightDepth = 0;
+        if (right != null) {
+            rightDepth = right.maxBalancedDepthBelow();
+        }
+
+        int maxDepth = Math.min(leftDepth, rightDepth);
+        return 1 + maxDepth;
+    }
+
+
+    int maxWidth() {
+        List<Tree> atLevel = Collections.singletonList(this);
+        int maxDepth = 1;
+        int curMax = 0;
+        while(!atLevel.isEmpty()) {
+            if (atLevel.size() == 1) {
+                curMax = 0;
+            }
+            if (curMax > maxDepth) {
+                maxDepth = curMax;
+            }
+            atLevel = atLevel.stream()
+                    .flatMap(n -> Stream.of(n.left, n.right))
+                    .filter(Objects::nonNull)
+                    .collect(toList());
+            curMax++;
+        }
+        return maxDepth * 2;
+    }
+    public static class MaxWidthTests {
+        @Test
+        public void simple() {
+            Tree simple = Tree.fromTraversal(Arrays.asList(
+                    1, 2, 3
+            ));
+            Assert.assertEquals("1,2,3", 2, simple.maxWidth());
+
+            Tree simple2 = Tree.fromTraversal(Arrays.asList(
+                    1,
+                    2, 3,
+                    4, null, null, 5
+            ));
+            Assert.assertEquals("branch out", 4, simple2.maxWidth());
+        }
+
+        @Test
+        public void anotherSimple() {
+            Tree simple3 = Tree.fromTraversal(Arrays.asList(
+                    1,
+                    2, null,
+                    4, null
+            ));
+            Assert.assertEquals(2, simple3.maxWidth());
+
+
+            Tree root = Tree.fromTraversal(Arrays.asList(
+                    1, 2, null, 3, 4, null, null, 5, 6, 7, null, null, 8
+            ));
+        }
     }
 
     //////////////////////////////////////////
@@ -79,7 +155,7 @@ public class Tree {
         }
         return null;
     }
-    
+
     boolean pathTo(Tree other, Queue<Tree> ancestors) {
         ancestors.add(this);
         if (other == this) {
