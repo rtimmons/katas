@@ -3,8 +3,6 @@ package rytim.kata;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 public class ReadArbitrary {
 
     private static class Read4k {
@@ -65,12 +63,13 @@ public class ReadArbitrary {
         if ( remain == 0 ) {
             return 0;
         }
-        int toCopy = Math.min(many, remain);
+        int copy = Math.min(many, remain);
         System.arraycopy(
-            this.q, this.qstart, buf, bufStart, toCopy);
-        this.qstart = this.qstart + toCopy;
-        many = many - toCopy;
-        return toCopy + read(many, buf, bufStart + toCopy);
+            this.q, this.qstart, buf, bufStart, copy);
+
+        this.qstart = this.qstart + copy;
+        return copy +
+            read(many - copy, buf, bufStart + copy);
     }
 
     public static class ReadArbitraryTests {
@@ -80,15 +79,23 @@ public class ReadArbitrary {
             int[] buf = new int[12];
             for(int i=0; i< 1024/10; i++) {
                 Assert.assertEquals(10, r.read(10, buf));
+                Assert.assertEquals((i+1)*10-1, buf[9]);
             }
-            System.out.println(Arrays.toString(buf));
+            Assert.assertEquals(1014, buf[4]);
+
             Assert.assertEquals(1024 % 10, r.read(10, buf));
+            Assert.assertEquals(1020, buf[0]);
+            Assert.assertEquals(1021, buf[1]);
+            Assert.assertEquals(1022, buf[2]);
+            Assert.assertEquals(1023, buf[3]);
+
+            // from previous read
+            Assert.assertEquals(1014, buf[4]);
         }
         @Test public void read4099atATime() {
             ReadArbitrary r = new ReadArbitrary(new Read4k(4099));
             int[] buf = new int[4099];
             Assert.assertEquals(4099, r.read(4099, buf));
-            System.out.println(Arrays.toString(buf));
             Assert.assertEquals(4099-1, buf[buf.length-1]);
 
             Assert.assertEquals(0, r.read(4099, buf));
