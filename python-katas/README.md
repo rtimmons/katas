@@ -1,9 +1,12 @@
-[![Tests](https://github.com/cjolowicz/hypermodern-python/workflows/Tests/badge.svg)](https://github.com/cjolowicz/hypermodern-python/actions?workflow=Tests)
-[![Codecov](https://codecov.io/gh/cjolowicz/hypermodern-python/branch/master/graph/badge.svg)](https://codecov.io/gh/cjolowicz/hypermodern-python)
-[![PyPI](https://img.shields.io/pypi/v/hypermodern-python.svg)](https://pypi.org/project/hypermodern-python/)
-[![Read the Docs](https://readthedocs.org/projects/hypermodern-python/badge/)](https://hypermodern-python.readthedocs.io/)
+<!--
+[![Tests](https://github.com/rtimmons/katas/workflows/Tests/badge.svg)](https://github.com/rtimmons/katas/actions?workflow=Tests)
+[![Codecov](https://codecov.io/gh/rtimmons/katas/branch/master/graph/badge.svg)](https://codecov.io/gh/rtimmons/katas)
+[![PyPI](https://img.shields.io/pypi/v/katas.svg)](https://pypi.org/project/katas/)
+[![Read the Docs](https://readthedocs.org/projects/katas/badge/)](https://katas.readthedocs.io/)
+-->
 
-# hypermodern-python
+# Katas
 
-Companion repository for the Hypermodern Python article series<br>
-https://medium.com/@cjolowicz/hypermodern-python-d44485d9d769
+Initial repo contents forked from hypermodern-python
+https://cjolowicz.github.io/posts/hypermodern-python-01-setup/
+

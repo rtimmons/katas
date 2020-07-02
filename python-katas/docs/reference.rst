@@ -6,15 +6,9 @@ Reference
     :backlinks: none
 
 
-hypermodern_python.console
+katas.console
 --------------------------
 
-.. automodule:: hypermodern_python.console
+.. automodule:: katas.console
    :members:
 
-
-hypermodern_python.wikipedia
-----------------------------
-
-.. automodule:: hypermodern_python.wikipedia
-   :members:

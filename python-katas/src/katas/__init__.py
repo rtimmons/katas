@@ -1,4 +1,4 @@
-"""The hypermodern Python project."""
+"""The katas Python project."""
 try:
     from importlib.metadata import version, PackageNotFoundError  # type: ignore
 except ImportError:  # pragma: no cover

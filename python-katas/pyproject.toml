@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "hypermodern-python"
-version = "0.2.2"
-description = "The hypermodern Python project"
-authors = ["Claudio Jolowicz <mail@claudiojolowicz.com>"]
+name = "katas"
+version = "0.0.0"
+description = "Katas"
+authors = ["Ryan Timmons"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/cjolowicz/hypermodern-python"
-repository = "https://github.com/cjolowicz/hypermodern-python"
-documentation = "https://hypermodern-python.readthedocs.io"
-keywords = ["hypermodern"]
+homepage = "https://github.com/rtimmons/katas"
+repository = "https://github.com/rtimmons/katas"
+documentation = "https://katas.readthedocs.io"
+keywords = ["katas"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -42,14 +42,14 @@ sphinx-autodoc-typehints = "^1.10.3"
 codecov = "^2.0.22"
 
 [tool.poetry.scripts]
-hypermodern-python = "hypermodern_python.console:main"
+katas = "katas.console:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
 branch = true
-source = ["hypermodern_python"]
+source = ["katas"]
 
 [tool.coverage.report]
 show_missing = true
