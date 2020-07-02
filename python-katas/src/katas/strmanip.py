@@ -22,3 +22,9 @@ def to_lower_case(given: str) -> str:
     '0d'
     """
     return given.lower()
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(verbose=True)
