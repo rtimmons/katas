@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>
+    body, td {
+        font-family: monospace;
+        font-size: 3em;
+    }
+    td {
+        width: 1em;
+        height: 1em;
+        text-align: center;
+    }
+</style>
+</head>
+
+<body>
+
+<table border="1" id="board"></table>
+
+<script>
+
+function swap(state, a, b) {
+    const temp = state[b];
+    state[b] = state[a];
+    state[a] = temp;
+}
+
+function shuffle(arr) {
+    for (let key of Object.keys(arr)) {
+        swap(arr, key, Math.floor(Math.random() * arr.length))
+    }
+}
+
+const SZ = 5;
+
+const tiles = (n) => {
+    n = n * n - 1;
+    const out = [];
+    let i = 0;
+    while (n > 0) {
+        out.push('' + (i++ + 1));
+        --n;
+    }
+    out.push(' ');
+    return out;
+}
+
+const exist = i => i >= 0 && i < SZ*SZ ? i : undefined;
+
+const left  = i => (i+0) % SZ == 0 ? undefined : exist(i-1);
+const right = i => (i+1) % SZ == 0 ? undefined : exist(i+1);
+const up    = i =>                               exist(i-SZ);
+const down  = i =>                               exist(i+SZ);
+
+function swapVia(state, from, direction) {
+    if (typeof from === 'undefined') {
+        return false;
+    }
+    if (state[from] == ' ') {
+        return true;
+    }
+    const to = direction(from);
+    if (swapVia(state, to, direction)) {
+        swap(state, from, to);
+        return true;
+    }
+    return false;
+}
+
+function updateState(state, tap) {
+    return swapVia(state, tap, up)   ||
+           swapVia(state, tap, down) ||
+           swapVia(state, tap, left) ||
+           swapVia(state, tap, right);
+}
+
+const SOLVED = tiles(SZ);
+function winner(state) {
+    for (const k of Object.keys(state)) {
+        if (state[k] != SOLVED[k]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+const byId = id => document.getElementById(id);
+
+class Board {
+    constructor() {
+        this.handles = [];
+        const $t = byId('board');
+        let tr = document.createElement('tr');
+        for (let i=0; i < SZ*SZ; ++i) {
+            if (i % SZ == 0) {
+                $t.appendChild(tr);
+                tr = document.createElement('tr');
+            }
+            const td = document.createElement('td');
+            td.onclick = evt => this.handleClick(i);
+            tr.appendChild(td)
+            this.handles.push(td);
+        }
+        $t.appendChild(tr);
+    }
+    handleClick(fromI) {
+        const state = this.handles.map(elt => elt.innerHTML);
+        const updated = updateState(state, fromI);
+        if (updated) {
+            this.drawState(state);
+            if (winner(state)) {
+                alert('winner!');
+            }
+        }
+    }
+    drawState(state) {
+        for(let i=0; i<=SZ*SZ-1; ++i) {
+            this.handles[i].innerHTML = state[i] || '?';
+        }
+    }
+    init() {
+        const start = tiles(SZ);
+        // shuffle(start);
+        this.drawState(start);
+    }
+}
+
+const board = new Board();
+board.init();
+// u.byId('g05').onclick();
+
+
+</script>
+
+
+<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+</body>
+
+</html>
+
