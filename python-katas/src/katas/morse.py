@@ -40,7 +40,7 @@ NUMBERS = {
     "3": "...--",
     "4": "....-",
     "5": ".....",
-    "6": "-...",
+    "6": "-....",
     "7": "--...",
     "8": "---..",
     "9": "----.",
@@ -168,19 +168,23 @@ def render(word: str) -> str:
     return "&nbsp;&nbsp;".join(out)
 
 
-def get_words() -> List[str]:
+def get_words(word_len) -> List[str]:
     out = []
     with open("/usr/share/dict/words") as handle:
         out.extend(
-            [x.strip() for x in handle.readlines() if len(x) == 4 and all_distinct(x)]
+            [
+                x.strip()
+                for x in handle.readlines()
+                if len(x) == word_len + 1 and all_distinct(x)
+            ]
         )
     return out
 
 
-def as_table(dic: dict):
+def as_table(dic: dict, out_dir: str):
     out = ["<table align=center>"]
     for k, v in dic.items():
-        src = f"file://./generated/{k}.wav"
+        src = f"file://{out_dir}/generated/{k}.wav"
         player = f"""<audio loop=true controls><source src="{src}" type="audio/wav"></audio>"""
         out.append(
             f"""<tr><td class=player>{player}</td><td class=morse>{v}</td><td class=word>{k}</td></tr>"""
@@ -190,23 +194,22 @@ def as_table(dic: dict):
 
 
 def create_worksheet(
-    out_dir, out_file, words=None, n=None, seed=None, add_signs: int = 0
+    out_dir, out_file, words=None, n=None, seed=None, add_signs: int = 0, word_len=3,
 ):
     if seed:
         random.seed(seed)
 
     if words is None:
         chosen = set()
-        all_words = words if words else get_words()
+        all_words = words if words else get_words(word_len=word_len)
         count = n if n else 200
         for _ in range(count):
             chosen.add(random.choice(all_words).lower())
     else:
         chosen = words
 
-    if add_signs:
-        for i in range(add_signs):
-            chosen.add(SIGNS[i])
+    for i in range(add_signs):
+        chosen.add(SIGNS[i].lower())
 
     for choice in chosen:
         create_audio(choice, out_dir)
@@ -248,7 +251,7 @@ window.onload = function() {
         <script type="text/javascript">{script}</script>
       </head>
       <body>
-      {as_table(mapping)}
+      {as_table(mapping, out_dir)}
       </body>
     </html>
     """
@@ -256,14 +259,39 @@ window.onload = function() {
         handle.write(contents)
 
 
-def letters_only():
+out_dir_x = "/Users/rtimmons/Desktop/morse"
+
+
+def main():
+    out_dir = out_dir_x
     create_worksheet(
-        out_dir="/Users/rtimmons/Desktop/morse",
+        out_dir=out_dir,
         out_file="letters_only",
         words=list("abcdefghijklmnopqrstuvwxyz"),
     )
+    create_worksheet(
+        out_dir=out_dir,
+        out_file="numbers_and_letters",
+        words=list("abcdefghijklmnopqrstuvwxyz0123456789"),
+    )
+    for i in range(20):
+        create_worksheet(
+            out_dir=out_dir, out_file=f"3letters_{i}", seed=500, word_len=3,
+        )
+    for i in range(20):
+        create_worksheet(
+            out_dir=out_dir, out_file=f"4letters_{i}", seed=500, word_len=4,
+        )
+    for i in range(20):
+        create_worksheet(
+            out_dir=out_dir,
+            out_file=f"3letters_signs_{i}",
+            seed=50,
+            word_len=3,
+            n=40,
+            add_signs=10,
+        )
 
 
 if __name__ == "__main__":
-    # main()
-    letters_only()
+    main()
