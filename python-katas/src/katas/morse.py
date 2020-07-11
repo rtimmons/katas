@@ -152,11 +152,11 @@ def as_audio(word, to_create: str):
 AUDIO_SOURCE = os.path.abspath(os.path.dirname(__file__))
 
 
-def create_audio(word):
+def create_audio(word, out_dir):
     oldir = os.getcwd()
     try:
         os.chdir(AUDIO_SOURCE)
-        to_create = f"generated/{word}.wav"
+        to_create = f"{out_dir}/generated/{word}.wav"
         if not os.path.exists(to_create):
             as_audio(word, to_create)
     finally:
@@ -180,7 +180,7 @@ def get_words() -> List[str]:
 def as_table(dic: dict):
     out = ["<table align=center>"]
     for k, v in dic.items():
-        src = f"file://{AUDIO_SOURCE}/generated/{k}.wav"
+        src = f"file://./generated/{k}.wav"
         player = f"""<audio loop=true controls><source src="{src}" type="audio/wav"></audio>"""
         out.append(
             f"""<tr><td class=player>{player}</td><td class=morse>{v}</td><td class=word>{k}</td></tr>"""
@@ -189,25 +189,32 @@ def as_table(dic: dict):
     return "\n".join(out)
 
 
-def main(words=None, start=None, n=None, seed=None, add_signs: int = 0):
-    all_words = words if words else get_words()
-    chosen = start if start else {"ki9i"}
-    count = n if n else 200
-
+def create_worksheet(out_dir, out_file,
+                     words=None, n=None, seed=None,
+                     add_signs: int = 0):
     if seed:
         random.seed(seed)
 
+    if words is None:
+        chosen = set()
+        all_words = words if words else get_words()
+        count = n if n else 200
+        for _ in range(count):
+            chosen.add(random.choice(all_words).lower())
+    else:
+        chosen = words
+
     if add_signs:
         for i in range(add_signs):
-            chosen.add(SIGNS[i].lower())
-
-    for _ in range(count):
-        chosen.add(random.choice(all_words).lower())
+            chosen.add(SIGNS[i])
 
     for choice in chosen:
-        create_audio(choice)
+        create_audio(choice, out_dir)
 
-    mapping = dict((choice, render(choice)) for choice in chosen)
+    shuffled = list(chosen)
+    random.shuffle(shuffled)
+
+    mapping = dict((choice, render(choice)) for choice in shuffled)
 
     script = """
 function clickable(selector) {
@@ -233,8 +240,8 @@ window.onload = function() {
     td { padding-right: 1em }
     
     """
-    print(
-        f"""\
+
+    contents = f"""\
     <html>
       <head>
         <style>{style}</style>
@@ -245,11 +252,16 @@ window.onload = function() {
       </body>
     </html>
     """
-    )
+    with open(f"{out_dir}/{out_file}.html", "w") as handle:
+        handle.write(contents)
 
 
 def letters_only():
-    main(words=list("abcdefghijklmnopqrstuvwxyz"), start=set(), n=26)
+    create_worksheet(
+        out_dir="/Users/rtimmons/Desktop/morse",
+        out_file="letters_only",
+        words=list("abcdefghijklmnopqrstuvwxyz"),
+    )
 
 
 if __name__ == "__main__":
