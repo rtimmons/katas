@@ -80,7 +80,7 @@ def as_audio(word, to_create: str):
     outfile.export(to_create, format="wav")
 
 
-AUDIO_SOURCE = "/Users/rtimmons/Documents/Audacity"
+AUDIO_SOURCE = os.path.abspath(os.path.dirname(__file__))
 
 
 def create_audio(word):
