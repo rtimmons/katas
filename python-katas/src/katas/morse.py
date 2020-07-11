@@ -48,17 +48,59 @@ NUMBERS = {
 }
 
 SIGNS = [
-    "KD9NYE", "HA7TM", "KC3IME", "HA7TM", "CO7HNS",
-    "W0LEN", "CO6ABP", "AC0DA", "W0BLE", "MI0SAI",
-    "AA4LS", "HA5UK", "DL3TW", "KD9JJR", "K9BAZ",
-    "N9SW", "NG3Y", "K4PDS", "VE3XN", "N9MUF",
-    "WD8DAU", "W8OCC", "W5NRF", "K5EW", "N2CEC",
-    "KY0R", "CO8RCP", "KE0NNE", "KD9EYW", "AC2SB",
-    "VE3UIN", "KP4AF", "W7OK", "KE0GSZ", "KP4SE",
-    "K9ZW", "WV8CQ", "KE8YP", "K8ZT", "NK1I",
-    "K4NYX", "K9STL", "KI4MRH", "KI4MRH", "VA3FF",
-    "KC9YTT", "K2J", "KB8QYJ", "KB8QYJ", "AB8SP",
-    "KB9PKI", "N8CQD", "J68HZ",
+    "KD9NYE",
+    "HA7TM",
+    "KC3IME",
+    "HA7TM",
+    "CO7HNS",
+    "W0LEN",
+    "CO6ABP",
+    "AC0DA",
+    "W0BLE",
+    "MI0SAI",
+    "AA4LS",
+    "HA5UK",
+    "DL3TW",
+    "KD9JJR",
+    "K9BAZ",
+    "N9SW",
+    "NG3Y",
+    "K4PDS",
+    "VE3XN",
+    "N9MUF",
+    "WD8DAU",
+    "W8OCC",
+    "W5NRF",
+    "K5EW",
+    "N2CEC",
+    "KY0R",
+    "CO8RCP",
+    "KE0NNE",
+    "KD9EYW",
+    "AC2SB",
+    "VE3UIN",
+    "KP4AF",
+    "W7OK",
+    "KE0GSZ",
+    "KP4SE",
+    "K9ZW",
+    "WV8CQ",
+    "KE8YP",
+    "K8ZT",
+    "NK1I",
+    "K4NYX",
+    "K9STL",
+    "KI4MRH",
+    "KI4MRH",
+    "VA3FF",
+    "KC9YTT",
+    "K2J",
+    "KB8QYJ",
+    "KB8QYJ",
+    "AB8SP",
+    "KB9PKI",
+    "N8CQD",
+    "J68HZ",
 ]
 random.shuffle(SIGNS)
 
@@ -97,13 +139,9 @@ def as_dit_dah(word: str):
 
 def as_audio(word, to_create: str):
     audio_files = dict(
-        (s, AudioSegment.from_wav(f"{s}.wav"))
-        for s in ["break", "space", "dit", "dah"]
+        (s, AudioSegment.from_wav(f"{s}.wav")) for s in ["break", "space", "dit", "dah"]
     )
-    infiles = [
-        audio_files[s] for s in
-        as_dit_dah(word)
-    ]
+    infiles = [audio_files[s] for s in as_dit_dah(word)]
 
     outfile = audio_files["break"]
     for infile in infiles:
@@ -133,8 +171,9 @@ def render(word: str) -> str:
 def get_words() -> List[str]:
     out = []
     with open("/usr/share/dict/words") as handle:
-        out.extend([x.strip() for x in handle.readlines()
-                    if len(x) == 4 and all_distinct(x)])
+        out.extend(
+            [x.strip() for x in handle.readlines() if len(x) == 4 and all_distinct(x)]
+        )
     return out
 
 
@@ -143,7 +182,9 @@ def as_table(dic: dict):
     for k, v in dic.items():
         src = f"file://{AUDIO_SOURCE}/generated/{k}.wav"
         player = f"""<audio loop=true controls><source src="{src}" type="audio/wav"></audio>"""
-        out.append(f"""<tr><td class=player>{player}</td><td class=morse>{v}</td><td class=word>{k}</td></tr>""")
+        out.append(
+            f"""<tr><td class=player>{player}</td><td class=morse>{v}</td><td class=word>{k}</td></tr>"""
+        )
     out.append("</table>")
     return "\n".join(out)
 
@@ -166,10 +207,7 @@ def main(words=None, start=None, n=None, seed=None, add_signs: int = 0):
     for choice in chosen:
         create_audio(choice)
 
-    mapping = dict(
-        (choice, render(choice))
-        for choice in chosen
-    )
+    mapping = dict((choice, render(choice)) for choice in chosen)
 
     script = """
 function clickable(selector) {
@@ -195,7 +233,8 @@ window.onload = function() {
     td { padding-right: 1em }
     
     """
-    print(f"""\
+    print(
+        f"""\
     <html>
       <head>
         <style>{style}</style>
@@ -205,13 +244,12 @@ window.onload = function() {
       {as_table(mapping)}
       </body>
     </html>
-    """)
+    """
+    )
 
 
 def letters_only():
-    main(words=list("abcdefghijklmnopqrstuvwxyz"),
-         start=set(),
-         n=26)
+    main(words=list("abcdefghijklmnopqrstuvwxyz"), start=set(), n=26)
 
 
 if __name__ == "__main__":
