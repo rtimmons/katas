@@ -189,9 +189,9 @@ def as_table(dic: dict):
     return "\n".join(out)
 
 
-def create_worksheet(out_dir, out_file,
-                     words=None, n=None, seed=None,
-                     add_signs: int = 0):
+def create_worksheet(
+    out_dir, out_file, words=None, n=None, seed=None, add_signs: int = 0
+):
     if seed:
         random.seed(seed)
 
