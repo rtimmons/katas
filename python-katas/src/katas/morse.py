@@ -47,9 +47,34 @@ NUMBERS = {
     "0": "-----",
 }
 
+SIGNS = [
+    "KD9NYE", "HA7TM", "KC3IME", "HA7TM", "CO7HNS",
+    "W0LEN", "CO6ABP", "AC0DA", "W0BLE", "MI0SAI",
+    "AA4LS", "HA5UK", "DL3TW", "KD9JJR", "K9BAZ",
+    "N9SW", "NG3Y", "K4PDS", "VE3XN", "N9MUF",
+    "WD8DAU", "W8OCC", "W5NRF", "K5EW", "N2CEC",
+    "KY0R", "CO8RCP", "KE0NNE", "KD9EYW", "AC2SB",
+    "VE3UIN", "KP4AF", "W7OK", "KE0GSZ", "KP4SE",
+    "K9ZW", "WV8CQ", "KE8YP", "K8ZT", "NK1I",
+    "K4NYX", "K9STL", "KI4MRH", "KI4MRH", "VA3FF",
+    "KC9YTT", "K2J", "KB8QYJ", "KB8QYJ", "AB8SP",
+    "KB9PKI", "N8CQD", "J68HZ",
+]
+random.shuffle(SIGNS)
+
+
 ALL_CHARS = dict()
 ALL_CHARS.update(LETTERS)
 ALL_CHARS.update(NUMBERS)
+
+
+def all_distinct(word: str):
+    seen = set("")
+    for letter in list(word):
+        if letter in seen:
+            return False
+        seen.add(letter)
+    return True
 
 
 def as_dit_dah(word: str):
@@ -60,6 +85,12 @@ def as_dit_dah(word: str):
             sounds.append("dit" if sound == "." else "dah")
             sounds.append("break")
         sounds.append("space")
+        sounds.append("space")
+        sounds.append("space")
+    sounds.append("space")
+    sounds.append("space")
+    sounds.append("space")
+    sounds.append("space")
     sounds.append("space")
     return sounds
 
@@ -103,7 +134,7 @@ def get_words() -> List[str]:
     out = []
     with open("/usr/share/dict/words") as handle:
         out.extend([x.strip() for x in handle.readlines()
-                    if len(x) == 3])
+                    if len(x) == 4 and all_distinct(x)])
     return out
 
 
@@ -117,12 +148,19 @@ def as_table(dic: dict):
     return "\n".join(out)
 
 
-def main():
-    random.seed(30)
+def main(words=None, start=None, n=None, seed=None, add_signs: int = 0):
+    all_words = words if words else get_words()
+    chosen = start if start else {"ki9i"}
+    count = n if n else 200
 
-    all_words = get_words()
-    chosen = {"ki9i"}
-    for _ in range(15):
+    if seed:
+        random.seed(seed)
+
+    if add_signs:
+        for i in range(add_signs):
+            chosen.add(SIGNS[i].lower())
+
+    for _ in range(count):
         chosen.add(random.choice(all_words).lower())
 
     for choice in chosen:
@@ -170,6 +208,12 @@ window.onload = function() {
     """)
 
 
-if __name__ == "__main__":
-    main()
+def letters_only():
+    main(words=list("abcdefghijklmnopqrstuvwxyz"),
+         start=set(),
+         n=26)
 
+
+if __name__ == "__main__":
+    # main()
+    letters_only()
