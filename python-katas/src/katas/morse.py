@@ -3,7 +3,7 @@
 import random
 from pydub import AudioSegment
 import os
-from typing import List
+from typing import List, Set
 
 LETTERS = {
     "a": ".-",
@@ -46,6 +46,11 @@ NUMBERS = {
     "9": "----.",
     "0": "-----",
 }
+
+PUNCTUATION = {".": ".-.-.-", "?": "..--..", "/": "-..-.", "=": "-...-"}
+
+# TODO: prosigns
+# https://en.wikipedia.org/wiki/Prosigns_for_Morse_code
 
 SIGNS = [
     "KD9NYE",
@@ -156,9 +161,15 @@ def create_audio(word, out_dir):
     oldir = os.getcwd()
     try:
         os.chdir(AUDIO_SOURCE)
-        to_create = f"{out_dir}/generated/{word}.wav"
+
+        basedir = os.path.join(out_dir, "generated")
+        if not os.path.exists(basedir):
+            os.mkdir(basedir)
+
+        to_create = os.path.join(basedir, f"{word}.wav")
         if not os.path.exists(to_create):
             as_audio(word, to_create)
+
     finally:
         os.chdir(oldir)
 
@@ -269,15 +280,39 @@ window.onload = function() {
 out_dir_x = "/Users/rtimmons/Desktop/morse"
 
 
-def written_worksheet(out_dir, out_file, seed=None, n=None, word_len=5, add_signs=10):
+def random_words(count: int, word_len: int) -> Set[str]:
+    known_chars = list(ALL_CHARS.keys())
+    out = set()
+    for _ in range(count):
+        word = []
+        for _ in range(word_len):
+            word.append(random.choice(known_chars))
+        out.add("".join(word))
+    return out
+
+
+def written_worksheet(
+    out_dir,
+    out_file,
+    seed=None,
+    n=None,
+    word_len=5,
+    add_signs=10,
+    word_type: str = "dictionary",
+):
     if seed:
         random.seed(seed)
 
     chosen = set()
-    all_words = get_words(word_len=word_len)
     count = n if n else 200
-    for _ in range(count):
-        chosen.add(random.choice(all_words).lower())
+
+    if word_type == "dictionary":
+        all_words = get_words(word_len=word_len)
+        for _ in range(count):
+            chosen.add(random.choice(all_words).lower())
+    else:
+        assert word_type == "random"
+        chosen.update(random_words(count=count, word_len=word_len))
 
     for i in range(add_signs):
         chosen.add(SIGNS[i].lower())
@@ -324,9 +359,13 @@ def written_worksheet(out_dir, out_file, seed=None, n=None, word_len=5, add_sign
 
 def written_main():
     out_dir = out_dir_x
-    written_worksheet(
-        out_dir=out_dir, out_file="worksheet_1", n=100, word_len=5, add_signs=0
-    )
+    for x in range(10):
+        written_worksheet(
+            out_dir=out_dir, out_file=f"worksheet_words_{x}", n=50, add_signs=0
+        )
+        written_worksheet(
+            out_dir=out_dir, out_file=f"worksheet_random_{x}", word_type="random", n=40,
+        )
 
 
 def audio_main():
@@ -362,3 +401,4 @@ def audio_main():
 
 if __name__ == "__main__":
     written_main()
+    audio_main()
