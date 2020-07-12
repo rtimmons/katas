@@ -181,14 +181,21 @@ def get_words(word_len) -> List[str]:
     return out
 
 
-def as_table(dic: dict, out_dir: str):
-    out = ["<table align=center>"]
+def as_table(dic: dict, out_dir: str = None, style="audio"):
+    out = ["<table align=center width=100%>"]
     for k, v in dic.items():
-        src = f"file://{out_dir}/generated/{k}.wav"
-        player = f"""<audio loop=true controls><source src="{src}" type="audio/wav"></audio>"""
-        out.append(
-            f"""<tr><td class=player>{player}</td><td class=morse>{v}</td><td class=word>{k}</td></tr>"""
-        )
+        morse = f"<td class=morse>{v}</td>"
+        slash_morse = f"<td class=morse>{v.replace('-','/')}</td>"
+        word = f"<td class=word>{k}</td>"
+        if style == "audio":
+            assert out_dir
+            src = f"file://{out_dir}/generated/{k}.wav"
+            player = f"""<td class=player><audio loop=true controls><source src="{src}" type="audio/wav"></audio></td>"""
+            out.append(f"""<tr>{player}{morse}{word}</tr>""")
+        else:
+            assert style == "worksheet"
+            spacer = "<td class=spacer>&nbsp;&nbsp;</td>"
+            out.append(f"<tr>{word}{spacer}{slash_morse}</tr>")
     out.append("</table>")
     return "\n".join(out)
 
@@ -262,7 +269,67 @@ window.onload = function() {
 out_dir_x = "/Users/rtimmons/Desktop/morse"
 
 
-def main():
+def written_worksheet(out_dir, out_file, seed=None, n=None, word_len=5, add_signs=10):
+    if seed:
+        random.seed(seed)
+
+    chosen = set()
+    all_words = get_words(word_len=word_len)
+    count = n if n else 200
+    for _ in range(count):
+        chosen.add(random.choice(all_words).lower())
+
+    for i in range(add_signs):
+        chosen.add(SIGNS[i].lower())
+
+    shuffled = list(chosen)
+    random.shuffle(shuffled)
+
+    mapping = dict((choice, render(choice)) for choice in shuffled)
+
+    script = """"""
+
+    style = """
+    body, table { margin: 0; padding: 0; }
+    
+    td.morse, td.word { width: 0%; }
+    td.spacer { width: 100%; }
+    
+    tr { height: 2.5em }
+    td { font-size: 1.5em } 
+
+    td.morse { 
+        font-family: monospace;
+        font-size: 1em; 
+    }
+
+    table, td { border: 1px solid black; }
+    """
+
+    contents = f"""\
+        <html>
+          <head>
+            <style>{style}</style>
+            <script type="text/javascript">{script}</script>
+          </head>
+          <body>
+          {as_table(mapping, style="worksheet")}
+          </body>
+        </html>
+        """
+
+    with open(f"{out_dir}/{out_file}.html", "w") as handle:
+        handle.write(contents)
+
+
+def written_main():
+    out_dir = out_dir_x
+    written_worksheet(
+        out_dir=out_dir, out_file="worksheet_1", n=100, word_len=5, add_signs=0
+    )
+
+
+def audio_main():
     out_dir = out_dir_x
     create_worksheet(
         out_dir=out_dir,
@@ -294,4 +361,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    written_main()
