@@ -196,7 +196,7 @@ def as_table(dic: dict, out_dir: str = None, style="audio"):
     out = ["<table align=center width=100%>"]
     for k, v in dic.items():
         morse = f"<td class=morse>{v}</td>"
-        slash_morse = f"<td class=morse>{v.replace('-','/')}</td>"
+        slash_morse = f"<td class=morse>{v.replace('-','/').replace('.', '-')}</td>"
         word = f"<td class=word>{k}</td>"
         if style == "audio":
             assert out_dir
@@ -336,6 +336,7 @@ def written_worksheet(
     td.morse { 
         font-family: monospace;
         font-size: 1em; 
+        font-weight: bold;
     }
 
     table, td { border: 1px solid black; }
