@@ -192,6 +192,10 @@ def get_words(word_len) -> List[str]:
     return out
 
 
+def player(src):
+    return f"""<td class=player><audio loop=true controls><source src="{src}" type="audio/wav"></audio></td>"""
+
+
 def as_table(dic: dict, out_dir: str = None, style="audio"):
     out = ["<table align=center width=100%>"]
     for k, v in dic.items():
@@ -201,8 +205,7 @@ def as_table(dic: dict, out_dir: str = None, style="audio"):
         if style == "audio":
             assert out_dir
             src = f"file://{out_dir}/generated/{k}.wav"
-            player = f"""<td class=player><audio loop=true controls><source src="{src}" type="audio/wav"></audio></td>"""
-            out.append(f"""<tr>{player}{morse}{word}</tr>""")
+            out.append(f"""<tr>{player(src)}{morse}{word}</tr>""")
         else:
             assert style == "worksheet"
             spacer = "<td class=spacer>&nbsp;&nbsp;</td>"
@@ -238,28 +241,9 @@ def create_worksheet(
     mapping = dict((choice, render(choice)) for choice in shuffled)
 
     script = """
-function clickable(selector) {
-  words = document.querySelectorAll(selector);
-  for (const word of words) {
-    word.style.color = "white";
-    word.visible = false;
-    word.onclick = () => {
-      word.visible = ! word.visible;
-      word.style.color = word.visible ? 'black' : 'white';
-    };
-  }
-}
-window.onload = function() {
-  clickable(".word");
-  clickable(".morse");
-};
     """
 
     style = """
-    td.morse { font-family: monospace; }
-    table, td { border: 1px solid black; }
-    td { padding-right: 1em }
-    
     """
 
     contents = f"""\

@@ -1,0 +1,6 @@
+td.morse { font-family: monospace; }
+table, td { border: 1px solid black; }
+td { padding-right: 1em }
+
+
+span.answer { style: hidden; display: none; }
