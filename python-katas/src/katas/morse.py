@@ -109,7 +109,6 @@ SIGNS = [
 ]
 random.shuffle(SIGNS)
 
-
 ALL_CHARS = dict()
 ALL_CHARS.update(LETTERS)
 ALL_CHARS.update(NUMBERS)
@@ -179,14 +178,26 @@ def render(word: str) -> str:
     return "&nbsp;&nbsp;".join(out)
 
 
-def get_words(word_len) -> List[str]:
+def has_only_letters(word: str, letters: Set[str]) -> bool:
+    return all(c in letters for c in list(word))
+
+
+ALPHA = set(list("abcdefghijklmnopqrstuvwxyz"))
+
+
+def get_words(word_len, letters: Set[str] = None) -> List[str]:
+    if letters is None:
+        letters = ALPHA
+
     out = []
     with open("/usr/share/dict/words") as handle:
         out.extend(
             [
                 x.strip()
                 for x in handle.readlines()
-                if len(x) == word_len + 1 and all_distinct(x)
+                if len(x) == word_len + 1
+                and all_distinct(x)
+                and has_only_letters(x.strip(), letters)
             ]
         )
     return out
@@ -200,7 +211,7 @@ def as_table(dic: dict, out_dir: str = None, style="audio"):
     out = ["<table align=center width=100%>"]
     for k, v in dic.items():
         morse = f"<td class=morse>{v}</td>"
-        slash_morse = f"<td class=morse>{v.replace('-','/').replace('.', '-')}</td>"
+        slash_morse = f"<td class=morse>{v.replace('-', '/').replace('.', '-')}</td>"
         word = f"<td class=word>{k}</td>"
         if style == "audio":
             assert out_dir
@@ -215,14 +226,23 @@ def as_table(dic: dict, out_dir: str = None, style="audio"):
 
 
 def create_worksheet(
-    out_dir, out_file, words=None, n=None, seed=None, add_signs: int = 0, word_len=3,
+    out_dir,
+    out_file,
+    words=None,
+    n=None,
+    seed=None,
+    add_signs: int = 0,
+    word_len=3,
+    include_letters=None,
 ):
     if seed:
         random.seed(seed)
 
     if words is None:
         chosen = set()
-        all_words = words if words else get_words(word_len=word_len)
+        all_words = (
+            words if words else get_words(word_len=word_len, letters=include_letters)
+        )
         count = n if n else 200
         for _ in range(count):
             chosen.add(random.choice(all_words).lower())
@@ -355,6 +375,13 @@ def written_main():
 
 def audio_main():
     out_dir = out_dir_x
+    create_worksheet(
+        out_dir=out_dir,
+        out_file="hard_letters",
+        words=get_words(4, letters=set(list("batzimerfl"))),
+    )
+    # return
+
     create_worksheet(
         out_dir=out_dir,
         out_file="letters_only",
